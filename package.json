@@ -71,26 +71,23 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
+    "postinstall": "cd client && yarn && cd ../server && yarn && cd ..",
+    "vscode:prepublish": "cd client && yarn update-vscode && cd .. && yarn compile",
     "compile:syntax": "npx js-yaml syntaxes/xdml.tmLanguage.yaml > syntaxes/xdml.tmLanguage.json",
     "compile:config": "npx js-yaml language-configuration.yaml > language-configuration.json",
     "compile:language-support": "yarn compile:syntax && yarn compile:config",
-    "compile:source": "tsc -p ./",
+    "compile:source": "tsc -b",
+    "watch:source": "tsc -w -b",
     "compile": "yarn compile:language-support && yarn compile:source",
-    "watch": "tsc -watch -p ./",
+    "watch": "yarn compile:language-support && yarn watch:source",
     "pretest": "yarn run compile",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^10.12.21",
-    "@types/vscode": "^1.37.0",
-    "glob": "^7.1.4",
-    "mocha": "^6.1.4",
-    "typescript": "^3.3.1",
-    "tslint": "^5.12.1",
-    "vscode-test": "^1.0.2",
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^8.0.0",
+    "tslint": "^5.16.0",
+    "typescript": "^3.5.1",
     "js-yaml": "^3.13.1"
   }
 }
