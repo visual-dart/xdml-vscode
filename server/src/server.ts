@@ -1,8 +1,3 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
-
 import {
   createConnection,
   TextDocuments,
@@ -16,13 +11,9 @@ import {
   CompletionItemKind,
   TextDocumentPositionParams
 } from "vscode-languageserver";
+import { Parser } from "xml2js";
 
-// Create a connection for the server. The connection uses Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
 let connection = createConnection(ProposedFeatures.all);
-
-// Create a simple text document manager. The text document manager
-// supports full document sync only
 let documents: TextDocuments = new TextDocuments();
 
 let hasConfigurationCapability: boolean = false;
@@ -48,6 +39,7 @@ connection.onInitialize((params: InitializeParams) => {
 
   return {
     capabilities: {
+      hoverProvider: true,
       textDocumentSync: documents.syncKind,
       // Tell the client that the server supports code completion
       completionProvider: {
@@ -59,7 +51,6 @@ connection.onInitialize((params: InitializeParams) => {
 
 connection.onInitialized(() => {
   if (hasConfigurationCapability) {
-    // Register for all configuration changes.
     connection.client.register(
       DidChangeConfigurationNotification.type,
       undefined
@@ -73,34 +64,34 @@ connection.onInitialized(() => {
 });
 
 // The example settings
-interface ExampleSettings {
-  maxNumberOfProblems: number;
+interface IXDMLSettings {
+  validation: boolean;
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
+const defaultSettings: IXDMLSettings = { validation: true };
+let globalSettings: IXDMLSettings = defaultSettings;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
+let documentSettings: Map<string, Thenable<IXDMLSettings>> = new Map();
+
+let xmlParser = new Parser({ strict: false });
 
 connection.onDidChangeConfiguration(change => {
   if (hasConfigurationCapability) {
     // Reset all cached document settings
     documentSettings.clear();
   } else {
-    globalSettings = <ExampleSettings>(
-      (change.settings.languageServerExample || defaultSettings)
-    );
+    globalSettings = <IXDMLSettings>(change.settings.xdml || defaultSettings);
   }
 
   // Revalidate all open text documents
   documents.all().forEach(validateTextDocument);
 });
 
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
+function getDocumentSettings(resource: string): Thenable<IXDMLSettings> {
   if (!hasConfigurationCapability) {
     return Promise.resolve(globalSettings);
   }
@@ -108,7 +99,7 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
   if (!result) {
     result = connection.workspace.getConfiguration({
       scopeUri: resource,
-      section: "languageServerExample"
+      section: "xdml"
     });
     documentSettings.set(resource, result);
   }
@@ -118,6 +109,79 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 // Only keep settings for open documents
 documents.onDidClose(e => {
   documentSettings.delete(e.document.uri);
+});
+
+connection.onHover(async e => {
+  // console.log(e);
+  var doc = documents.get(e.textDocument.uri)!;
+  var position = e.position;
+  var text = doc.getText();
+  var currentIndex = doc.offsetAt(position);
+  // console.log(text.substring(currentIndex, 10));
+  const preContent = text.substring(0, currentIndex);
+  const afterContent = text.substr(currentIndex);
+
+  // console.log(currentIndex);
+
+  const XDML = "https://github.com/visual-dart/xdml/wiki/xdml";
+
+  const namespaces: any = {};
+  const nsReg = /xmlns:([\w-_.]+)\s*=\s*((\"([^\"\r\n]+)\")|(\'([^\'\r\n]+)\'))(\r|\r\n)*/g;
+  text.replace(nsReg, (...args) => {
+    // console.log(args);
+    const ns = args[1];
+    const nsUrl = args[4] || args[7];
+    namespaces[ns] = nsUrl;
+    return "";
+  });
+
+  const preReg = /(\s|\r\n|\n|<|<\/){1}([\w-_\.:]*)$/;
+  const preResult = preReg.exec(preContent);
+  if (!preResult) {
+    return { contents: [] };
+  }
+  // console.log(preResult);
+  var isClass = preResult[1] === "<" || preResult[1] === "</";
+  var preValue = preResult[2];
+
+  const nextReg = /^([\w-_\.:]*)(\s|\r\n|\n)*(=)?/;
+  const nextResult = nextReg.exec(afterContent);
+  if (!nextResult) {
+    return { contents: [] };
+  }
+  // console.log(nextResult);
+  var nextValue = nextResult[1];
+  var isAttr = nextResult[3] === "=";
+
+  const entityName = `${preValue}${nextValue}`;
+  const hasNs = entityName.indexOf(":") > 0;
+  const ns = hasNs ? entityName.split(":")[0] : undefined;
+  const name = hasNs ? entityName.split(":")[1] : entityName;
+  const isFactory = name.indexOf(".") >= 0;
+
+  let message = entityName;
+
+  var nsUrl = namespaces[ns!];
+  var internal = nsUrl === XDML;
+  const tokenType = isClass
+    ? internal
+      ? isFactory
+        ? "XDML虚拟变量声明"
+        : "XDML语法结构"
+      : isFactory
+      ? "Dart类工厂"
+      : "Dart类"
+    : isAttr
+    ? "属性"
+    : "Token";
+  message = [
+    `**${tokenType}**: ${"`"}${name}${"`"}`,
+    `**导入来源**: ${nsUrl || "当前页面范围内部成员"}`
+  ].join("\n\n");
+
+  return {
+    contents: message
+  };
 });
 
 // The content of a text document has changed. This event is emitted
@@ -132,45 +196,55 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
   // The validator creates diagnostics for all uppercase words length 2 and more
   let text = textDocument.getText();
-  let pattern = /\b[A-Z]{2,}\b/g;
-  let m: RegExpExecArray | null;
+  // return new Promise((resolve, reject) => {
+  // xmlParser.parseString(text, (error: any, result: any) => {
+  //   if (error) {
+  //     reject(error);
+  //   } else {
+  //     console.log(result);
+  //   }
+  // });
+  // });
+  // console.log(text);
+  // let pattern = /\b[A-Z]{2,}\b/g;
+  // let m: RegExpExecArray | null;
 
-  let problems = 0;
-  let diagnostics: Diagnostic[] = [];
-  while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-    problems++;
-    let diagnostic: Diagnostic = {
-      severity: DiagnosticSeverity.Warning,
-      range: {
-        start: textDocument.positionAt(m.index),
-        end: textDocument.positionAt(m.index + m[0].length)
-      },
-      message: `${m[0]} is all uppercase.`,
-      source: "ex"
-    };
-    if (hasDiagnosticRelatedInformationCapability) {
-      diagnostic.relatedInformation = [
-        {
-          location: {
-            uri: textDocument.uri,
-            range: Object.assign({}, diagnostic.range)
-          },
-          message: "Spelling matters"
-        },
-        {
-          location: {
-            uri: textDocument.uri,
-            range: Object.assign({}, diagnostic.range)
-          },
-          message: "Particularly for names"
-        }
-      ];
-    }
-    diagnostics.push(diagnostic);
-  }
+  // let problems = 0;
+  // let diagnostics: Diagnostic[] = [];
+  // while (settings.validation && (m = pattern.exec(text)) && problems < 100) {
+  //   problems++;
+  //   let diagnostic: Diagnostic = {
+  //     severity: DiagnosticSeverity.Warning,
+  //     range: {
+  //       start: textDocument.positionAt(m.index),
+  //       end: textDocument.positionAt(m.index + m[0].length)
+  //     },
+  //     message: `${m[0]} is all uppercase.`,
+  //     source: "ex"
+  //   };
+  //   if (hasDiagnosticRelatedInformationCapability) {
+  //     diagnostic.relatedInformation = [
+  //       {
+  //         location: {
+  //           uri: textDocument.uri,
+  //           range: Object.assign({}, diagnostic.range)
+  //         },
+  //         message: "Spelling matters"
+  //       },
+  //       {
+  //         location: {
+  //           uri: textDocument.uri,
+  //           range: Object.assign({}, diagnostic.range)
+  //         },
+  //         message: "Particularly for names"
+  //       }
+  //     ];
+  //   }
+  //   diagnostics.push(diagnostic);
+  // }
 
-  // Send the computed diagnostics to VSCode.
-  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+  // // Send the computed diagnostics to VSCode.
+  // connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles(_change => {

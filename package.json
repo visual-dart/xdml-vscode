@@ -1,12 +1,12 @@
 {
   "name": "xdml-vscode",
-  "displayName": "XAML for Dart Support",
+  "displayName": "XAML for Dart Language Support",
   "description": "",
   "version": "0.0.1",
   "publisher": "bigmogician",
   "repository": {
     "type": "git",
-    "url": "https://github.com/visual-dart/xdml-language-service.git"
+    "url": "https://github.com/visual-dart/xdml-vscode.git"
   },
   "engines": {
     "vscode": "^1.37.0"
@@ -48,15 +48,15 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "Example configuration",
+      "title": "Xaml For Dart Language Support Configuration",
       "properties": {
-        "languageServerExample.maxNumberOfProblems": {
+        "xdml.validation": {
           "scope": "resource",
-          "type": "number",
-          "default": 100,
-          "description": "Controls the maximum number of problems produced by the server."
+          "type": "boolean",
+          "default": true,
+          "description": ""
         },
-        "languageServerExample.trace.server": {
+        "xdml.trace.server": {
           "scope": "window",
           "type": "string",
           "enum": [
@@ -77,7 +77,7 @@
     "compile:config": "npx js-yaml language-configuration.yaml > language-configuration.json",
     "compile:language-support": "yarn compile:syntax && yarn compile:config",
     "compile:source": "tsc -b",
-    "watch:source": "tsc -w -b",
+    "watch:source": "tsc -b -w",
     "compile": "yarn compile:language-support && yarn compile:source",
     "watch": "yarn compile:language-support && yarn watch:source",
     "pretest": "yarn run compile",
