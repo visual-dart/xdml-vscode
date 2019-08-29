@@ -63,3 +63,7 @@ typings/
 out
 
 .DS_Store
+
+client/server
+
+.vscode-test
