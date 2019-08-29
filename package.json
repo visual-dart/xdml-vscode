@@ -1,40 +1,72 @@
 {
-	"name": "xdml",
-	"displayName": "xdml",
-	"description": "",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.37.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:extension.helloWorld"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [{
-			"command": "extension.helloWorld",
-			"title": "Hello World"
-		}]
-	},
-	"scripts": {
-		"vscode:prepublish": "yarn run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^5.2.6",
-		"@types/node": "^10.12.21",
-		"@types/vscode": "^1.37.0",
-		"glob": "^7.1.4",
-		"mocha": "^6.1.4",
-		"typescript": "^3.3.1",
-		"tslint": "^5.12.1",
-		"vscode-test": "^1.0.2"
-	}
+  "name": "xdml",
+  "displayName": "xdml",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "bigmogician",
+  "repository": {
+    "git": "https://github.com/visual-dart/xdml-language-service.git"
+  },
+  "engines": {
+    "vscode": "^1.37.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:xdml",
+    "onCommand:extension.helloWorld"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.helloWorld",
+        "title": "Hello World"
+      }
+    ],
+    "languages": [
+      {
+        "id": "xdml",
+        "aliases": [
+          "Xaml For Dart",
+          "XDML",
+          "xdml"
+        ],
+        "extensions": [
+          ".dart.xaml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "xdml",
+        "scopeName": "text.dart.xaml",
+        "path": "./syntaxes/xdml.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile:syntax": "npx js-yaml syntaxes/xdml.tmLanguage.yaml > syntaxes/xdml.tmLanguage.json",
+    "compile:config": "npx js-yaml language-configuration.yaml > language-configuration.json",
+    "compile:source": "tsc -p ./",
+    "compile": "yarn compile:syntax && yarn compile:config && yarn compile:source",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^10.12.21",
+    "@types/vscode": "^1.37.0",
+    "glob": "^7.1.4",
+    "mocha": "^6.1.4",
+    "typescript": "^3.3.1",
+    "tslint": "^5.12.1",
+    "vscode-test": "^1.0.2",
+    "js-yaml": "^3.13.1"
+  }
 }
