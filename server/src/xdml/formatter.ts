@@ -6,7 +6,7 @@ const ESCAPE_SINGLE = /'([^']*([&]+)[^']*)'/g;
 
 const DESCAPE = /"@\[([^&]*)\]"/g;
 
-const PARSER = new xmlfmt.Parser({ strict: true, parseComments: true });
+const PARSER = new xmlfmt.Parser({ strict: true });
 const BUILDER = new xmlfmt.Builder({});
 
 async function parseString(parser: any, text: string) {
@@ -32,7 +32,9 @@ export async function formatXml(text: string) {
         return `"@[${escape(matched)}]"`;
       });
     const ast = await parseString(PARSER, formalText);
-    const result = (BUILDER.buildObject(ast) as string).replace(
+    console.log("parsed.");
+    console.log(ast);
+    const result = BUILDER.buildObject(ast).replace(
       DESCAPE,
       (_, matched) => `"${unescape(matched)}"`
     );

@@ -118,7 +118,7 @@ export class Parser extends events.EventEmitter {
   }
 
   reset() {
-    var attrkey, charkey, commentskey, ontext, stack;
+    var attrkey, charkey, commentskey, ontext, stack, comments;
     this.removeAllListeners();
     this.saxParser = sax.parser(this.options.strict, {
       trim: false,
@@ -147,6 +147,7 @@ export class Parser extends events.EventEmitter {
     this.EXPLICIT_CHARKEY = this.options.explicitCharkey;
     this.resultObject = null;
     stack = [];
+    comments = [];
     attrkey = this.options.attrkey;
     charkey = this.options.charkey;
     commentskey = this.options.commentskey;
@@ -190,6 +191,9 @@ export class Parser extends events.EventEmitter {
             local: node.local
           };
         }
+        obj[commentskey] = comments;
+        comments = [];
+        console.log(node);
         return stack.push(obj);
       };
     })(this);
@@ -197,6 +201,8 @@ export class Parser extends events.EventEmitter {
       return function() {
         var cdata, emptyStr, key, node, nodeName, obj, objClone, old, s, xpath;
         obj = stack.pop();
+        // console.log("pop");
+        // console.log(obj);
         nodeName = obj["#name"];
         if (
           !_this.options.explicitChildren ||
@@ -357,19 +363,11 @@ export class Parser extends events.EventEmitter {
         }
       };
     })(this);
-    if (this.options.parseComments) {
-      return (this.saxParser.oncomment = (function(_this) {
-        return function(text) {
-          var s;
-          s = stack[stack.length - 1];
-          if (s) {
-            s[commentskey] = s[commentskey] || [];
-            s[commentskey].push(text.trim());
-            return s;
-          }
-        };
-      })(this));
-    }
+    this.saxParser.oncomment = (function(_this) {
+      return function(text) {
+        comments.push(text);
+      };
+    })(this);
   }
 
   parseString(str, cb) {
@@ -393,7 +391,7 @@ export class Parser extends events.EventEmitter {
       str = stripBOM(str);
       if (this.options.async) {
         this.remaining = str;
-        setImmediate(this.processAsync);
+        timers.setImmediate(this.processAsync);
         return this.saxParser;
       }
       return this.saxParser.write(str).close();

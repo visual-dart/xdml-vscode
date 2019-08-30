@@ -39,7 +39,6 @@ export interface Options {
   chunkSize: number;
   cdata: boolean;
   commentskey: string;
-  parseComments: boolean;
   xmlnskey: string;
 }
 
@@ -52,7 +51,6 @@ export const DEFAULTS: Options = {
   charkey: "_",
   xmlnskey: "",
   commentskey: "$comments",
-  parseComments: false,
   explicitArray: true,
   ignoreAttrs: false,
   mergeAttrs: false,

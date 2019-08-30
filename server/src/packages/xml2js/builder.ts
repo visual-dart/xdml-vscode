@@ -95,12 +95,14 @@ export class Builder {
         continue;
       }
 
-      if (key === this.commentskey) {
-        for (let value of child) {
-          element = element.comment(value);
-        }
-        continue;
-      }
+      // if (key === this.commentskey) {
+      //   for (let value of child) {
+      //     console.log(value);
+      //     // element = func(element, parseInt(index));
+      //     element = element.comment(value);
+      //   }
+      //   continue;
+      // }
 
       if (Array.isArray(child)) {
         for (let index in child) {
@@ -150,28 +152,26 @@ export class Builder {
   }
 
   buildObject(rootObj: any) {
-    {
-      let rootElement: builder.XMLElementOrXMLNode;
-      let rootName: string;
-      if (
-        Object.keys(rootObj).length === 1 &&
-        this.options.rootName === DEFAULTS.rootName
-      ) {
-        rootName = Object.keys(rootObj)[0];
-        rootObj = rootObj[rootName];
-      } else {
-        rootName = this.options.rootName;
-      }
-      rootElement = builder.create(
-        rootName,
-        this.options.xmldec,
-        this.options.doctype,
-        <any>{
-          headless: this.options.headless,
-          allowSurrogateChars: (<any>this.options).allowSurrogateChars
-        }
-      );
-      return this._render(rootElement, rootObj).end(this.options.renderOpts);
+    let rootElement: builder.XMLElementOrXMLNode;
+    let rootName: string;
+    if (
+      Object.keys(rootObj).length === 1 &&
+      this.options.rootName === DEFAULTS.rootName
+    ) {
+      rootName = Object.keys(rootObj)[0];
+      rootObj = rootObj[rootName];
+    } else {
+      rootName = this.options.rootName;
     }
+    rootElement = builder.create(
+      rootName,
+      this.options.xmldec,
+      this.options.doctype,
+      <any>{
+        headless: this.options.headless,
+        allowSurrogateChars: (<any>this.options).allowSurrogateChars
+      }
+    );
+    return this._render(rootElement, rootObj).end(this.options.renderOpts);
   }
 }
