@@ -38,7 +38,7 @@ export class Parser extends events.EventEmitter {
   private resultObject!: any;
   private EXPLICIT_CHARKEY!: any;
 
-  constructor(opts: Options) {
+  constructor(opts: Partial<Options>) {
     super();
     this.parseString = bind(this.parseString, this);
     this.reset = bind(this.reset, this);

@@ -23,32 +23,136 @@ const escapeCDATA = function(entry) {
 export class Builder {
   private options!: Options;
 
-  constructor(opts: any) {
-    var key, value;
+  get attrkey() {
+    return this.options.attrkey;
+  }
+
+  get charkey() {
+    return this.options.charkey;
+  }
+
+  get commentskey() {
+    return this.options.commentskey;
+  }
+
+  constructor(opts: Partial<Options>) {
     this.options = <any>{};
     const ref = DEFAULTS;
-    for (key in ref) {
+    for (let key in ref) {
       if (!hasProp.call(ref, key)) {
         continue;
       }
-      value = ref[key];
-      this.options[key] = value;
+      this.options[key] = ref[key];
     }
-    for (key in opts) {
+    for (let key in opts) {
       if (!hasProp.call(opts, key)) {
         continue;
       }
-      value = opts[key];
-      this.options[key] = value;
+      this.options[key] = opts[key];
     }
+  }
+
+  private _render(element: builder.XMLElementOrXMLNode, obj: any) {
+    if (typeof obj !== "object") {
+      if (this.options.cdata && requiresCDATA(obj)) {
+        return element.raw(wrapCDATA(obj));
+      }
+      return element.txt(obj);
+    }
+
+    // 多个root
+    if (Array.isArray(obj)) {
+      for (let child of obj) {
+        for (let key in child) {
+          const entry = child[key];
+          element = this._render(element.ele(key), entry).up();
+        }
+      }
+      return element;
+    }
+
+    for (let key in obj) {
+      if (!hasProp.call(obj, key)) {
+        continue;
+      }
+      let child = obj[key];
+      if (key === this.attrkey) {
+        if (typeof child === "object") {
+          for (let attr in child) {
+            const value = child[attr];
+            element = element.att(attr, value);
+          }
+        }
+        continue;
+      }
+
+      if (key === this.charkey) {
+        if (this.options.cdata && requiresCDATA(child)) {
+          element = element.raw(wrapCDATA(child));
+        } else {
+          element = element.txt(child);
+        }
+        continue;
+      }
+
+      if (key === this.commentskey) {
+        for (let value of child) {
+          element = element.comment(value);
+        }
+        continue;
+      }
+
+      if (Array.isArray(child)) {
+        for (let index in child) {
+          if (!hasProp.call(child, index)) {
+            continue;
+          }
+          const entry = child[index];
+          if (typeof entry === "string") {
+            if (this.options.cdata && requiresCDATA(entry)) {
+              element = element
+                .ele(key)
+                .raw(wrapCDATA(entry))
+                .up();
+            } else {
+              element = element.ele(key, entry).up();
+            }
+          } else {
+            element = this._render(element.ele(key), entry).up();
+          }
+        }
+        continue;
+      }
+
+      if (typeof child === "object") {
+        element = this._render(element.ele(key), child).up();
+        continue;
+      }
+
+      if (
+        typeof child === "string" &&
+        this.options.cdata &&
+        requiresCDATA(child)
+      ) {
+        element = element
+          .ele(key)
+          .raw(wrapCDATA(child))
+          .up();
+      } else {
+        if (child === null) {
+          child = "";
+        }
+        element = element.ele(key, child.toString()).up();
+      }
+    }
+
+    return element;
   }
 
   buildObject(rootObj: any) {
     {
-      var attrkey, charkey, commentskey, render, rootElement, rootName;
-      attrkey = this.options.attrkey;
-      charkey = this.options.charkey;
-      commentskey = this.options.commentskey;
+      let rootElement: builder.XMLElementOrXMLNode;
+      let rootName: string;
       if (
         Object.keys(rootObj).length === 1 &&
         this.options.rootName === DEFAULTS.rootName
@@ -58,93 +162,6 @@ export class Builder {
       } else {
         rootName = this.options.rootName;
       }
-      render = (function(_this) {
-        return function(element, obj) {
-          var attr, child, entry, i, len, index, key, value;
-          if (typeof obj !== "object") {
-            if (_this.options.cdata && requiresCDATA(obj)) {
-              element.raw(wrapCDATA(obj));
-            } else {
-              element.txt(obj);
-            }
-          } else if (Array.isArray(obj)) {
-            for (index in obj) {
-              if (!hasProp.call(obj, index)) {
-                continue;
-              }
-              child = obj[index];
-              for (key in child) {
-                entry = child[key];
-                element = render(element.ele(key), entry).up();
-              }
-            }
-          } else {
-            for (key in obj) {
-              if (!hasProp.call(obj, key)) {
-                continue;
-              }
-              child = obj[key];
-              if (key === attrkey) {
-                if (typeof child === "object") {
-                  for (attr in child) {
-                    value = child[attr];
-                    element = element.att(attr, value);
-                  }
-                }
-              } else if (key === charkey) {
-                if (_this.options.cdata && requiresCDATA(child)) {
-                  element = element.raw(wrapCDATA(child));
-                } else {
-                  element = element.txt(child);
-                }
-              } else if (key === commentskey) {
-                for (i = 0, len = child.length; i < len; i++) {
-                  value = child[i];
-                  element = element.comment(value);
-                }
-              } else if (Array.isArray(child)) {
-                for (index in child) {
-                  if (!hasProp.call(child, index)) {
-                    continue;
-                  }
-                  entry = child[index];
-                  if (typeof entry === "string") {
-                    if (_this.options.cdata && requiresCDATA(entry)) {
-                      element = element
-                        .ele(key)
-                        .raw(wrapCDATA(entry))
-                        .up();
-                    } else {
-                      element = element.ele(key, entry).up();
-                    }
-                  } else {
-                    element = render(element.ele(key), entry).up();
-                  }
-                }
-              } else if (typeof child === "object") {
-                element = render(element.ele(key), child).up();
-              } else {
-                if (
-                  typeof child === "string" &&
-                  _this.options.cdata &&
-                  requiresCDATA(child)
-                ) {
-                  element = element
-                    .ele(key)
-                    .raw(wrapCDATA(child))
-                    .up();
-                } else {
-                  if (child === null) {
-                    child = "";
-                  }
-                  element = element.ele(key, child.toString()).up();
-                }
-              }
-            }
-          }
-          return element;
-        };
-      })(this);
       rootElement = builder.create(
         rootName,
         this.options.xmldec,
@@ -154,7 +171,7 @@ export class Builder {
           allowSurrogateChars: (<any>this.options).allowSurrogateChars
         }
       );
-      return render(rootElement, rootObj).end(this.options.renderOpts);
+      return this._render(rootElement, rootObj).end(this.options.renderOpts);
     }
   }
 }

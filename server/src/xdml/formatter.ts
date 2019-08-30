@@ -6,7 +6,7 @@ const ESCAPE_SINGLE = /'([^']*([&]+)[^']*)'/g;
 
 const DESCAPE = /"@\[([^&]*)\]"/g;
 
-const PARSER = new xmlfmt.Parser(<any>{ strict: true, parseComments: true });
+const PARSER = new xmlfmt.Parser({ strict: true, parseComments: true });
 const BUILDER = new xmlfmt.Builder({});
 
 async function parseString(parser: any, text: string) {
@@ -22,17 +22,22 @@ async function parseString(parser: any, text: string) {
 }
 
 export async function formatXml(text: string) {
-  var formalText = text;
-  formalText = text
-    .replace(ESCAPE_DOUBLE, (_, matched) => {
-      return `"@[${escape(matched)}]"`;
-    })
-    .replace(ESCAPE_SINGLE, (_, matched) => {
-      return `"@[${escape(matched)}]"`;
-    });
-  const ast = await parseString(PARSER, formalText);
-  return (BUILDER.buildObject(ast) as string).replace(
-    DESCAPE,
-    (_, matched) => `"${unescape(matched)}"`
-  );
+  try {
+    let formalText = text;
+    formalText = text
+      .replace(ESCAPE_DOUBLE, (_, matched) => {
+        return `"@[${escape(matched)}]"`;
+      })
+      .replace(ESCAPE_SINGLE, (_, matched) => {
+        return `"@[${escape(matched)}]"`;
+      });
+    const ast = await parseString(PARSER, formalText);
+    const result = (BUILDER.buildObject(ast) as string).replace(
+      DESCAPE,
+      (_, matched) => `"${unescape(matched)}"`
+    );
+    return result;
+  } catch (error) {
+    throw error;
+  }
 }
