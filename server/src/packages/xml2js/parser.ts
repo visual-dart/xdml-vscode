@@ -59,12 +59,12 @@ export class Parser extends events.EventEmitter {
     this.reset = bind(this.reset, this);
     this.assignOrPush = bind(this.assignOrPush, this);
     this.processAsync = bind(this.processAsync, this);
-    var key, ref, value;
+    var key, value;
     if (!(this instanceof Parser)) {
       return new Parser(opts);
     }
     this.options = {};
-    ref = DEFAULTS["0.2"];
+    const ref = DEFAULTS;
     for (key in ref) {
       if (!hasProp.call(ref, key)) {
         continue;

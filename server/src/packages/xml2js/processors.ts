@@ -1,27 +1,27 @@
-var prefixMatch = new RegExp(/(?!xmlns)^.*:/);
+const prefixMatch = new RegExp(/(?!xmlns)^.*:/);
 
-export const normalize = function(str) {
+export function normalize(str: string): string {
   return str.toLowerCase();
-};
+}
 
-export const firstCharLowerCase = function(str) {
+export function firstCharLowerCase(str: string): string {
   return str.charAt(0).toLowerCase() + str.slice(1);
-};
+}
 
-export const stripPrefix = function(str) {
+export function stripPrefix(str: string): string {
   return str.replace(prefixMatch, "");
-};
+}
 
-export const parseNumbers = function(str) {
-  if (!isNaN(str)) {
-    str = str % 1 === 0 ? parseInt(str, 10) : parseFloat(str);
+export function parseNumbers(str: string): number | string {
+  if (!isNaN(<any>str)) {
+    return <any>str % 1 === 0 ? parseInt(str, 10) : parseFloat(str);
   }
   return str;
-};
+}
 
-export const parseBooleans = function(str) {
+export function parseBooleans(str: string): boolean | string {
   if (/^(?:true|false)$/i.test(str)) {
-    str = str.toLowerCase() === "true";
+    return str.toLowerCase() === "true";
   }
   return str;
-};
+}
