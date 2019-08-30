@@ -1,24 +1,34 @@
-const hasProp = {}.hasOwnProperty;
-
 import builder = require("xmlbuilder");
 import { DEFAULTS, Options } from "./defaults";
 
-const requiresCDATA = function(entry) {
+const CONVERT_COMMENT = "CONVERT#COMMENT#KEY";
+const CONVERT_TEXT = "CONVERT#TEXT#KEY";
+const CONVERT_CDATA = "CONVERT#CDATA#KEY";
+const CONVERT_RAW = "CONVERT#RAW#KEY";
+const CONVERT_PI = "CONVERT#PI#KEY";
+
+const hasProp = {}.hasOwnProperty;
+
+function requiresCDATA(entry: any) {
   return (
     typeof entry === "string" &&
     (entry.indexOf("&") >= 0 ||
       entry.indexOf(">") >= 0 ||
       entry.indexOf("<") >= 0)
   );
-};
+}
 
-const wrapCDATA = function(entry) {
+function wrapCDATA(entry: string) {
   return "<![CDATA[" + escapeCDATA(entry) + "]]>";
-};
+}
 
-const escapeCDATA = function(entry) {
+function escapeCDATA(entry: string) {
   return entry.replace("]]>", "]]]]><![CDATA[>");
-};
+}
+
+function hasKey(target: any, key: string) {
+  return hasProp.call(target, key);
+}
 
 export class Builder {
   private options!: Options;
@@ -39,20 +49,20 @@ export class Builder {
     this.options = <any>{};
     const ref = DEFAULTS;
     for (let key in ref) {
-      if (!hasProp.call(ref, key)) {
+      if (!hasKey(ref, key)) {
         continue;
       }
       this.options[key] = ref[key];
     }
     for (let key in opts) {
-      if (!hasProp.call(opts, key)) {
+      if (!hasKey(opts, key)) {
         continue;
       }
       this.options[key] = opts[key];
     }
   }
 
-  private _render(element: builder.XMLElementOrXMLNode, obj: any) {
+  private _render(element: builder.XMLElement, obj: any) {
     if (typeof obj !== "object") {
       if (this.options.cdata && requiresCDATA(obj)) {
         return element.raw(wrapCDATA(obj));
@@ -71,8 +81,18 @@ export class Builder {
       return element;
     }
 
-    for (let key in obj) {
-      if (!hasProp.call(obj, key)) {
+    const keys = Object.keys(obj);
+    const commentIndex = keys.indexOf(this.commentskey);
+    if (commentIndex >= 0) {
+      const child = obj[this.commentskey];
+      for (let value of child) {
+        element.commentBefore(value.trim());
+      }
+    }
+
+    const otherKeys = keys.filter(i => i !== this.commentskey);
+    for (const key of otherKeys) {
+      if (!hasKey(obj, key)) {
         continue;
       }
       let child = obj[key];
@@ -95,18 +115,9 @@ export class Builder {
         continue;
       }
 
-      // if (key === this.commentskey) {
-      //   for (let value of child) {
-      //     console.log(value);
-      //     // element = func(element, parseInt(index));
-      //     element = element.comment(value);
-      //   }
-      //   continue;
-      // }
-
       if (Array.isArray(child)) {
         for (let index in child) {
-          if (!hasProp.call(child, index)) {
+          if (!hasKey(child, index)) {
             continue;
           }
           const entry = child[index];
@@ -152,7 +163,7 @@ export class Builder {
   }
 
   buildObject(rootObj: any) {
-    let rootElement: builder.XMLElementOrXMLNode;
+    let rootElement: builder.XMLElement;
     let rootName: string;
     if (
       Object.keys(rootObj).length === 1 &&
@@ -167,11 +178,23 @@ export class Builder {
       rootName,
       this.options.xmldec,
       this.options.doctype,
-      <any>{
+      {
         headless: this.options.headless,
-        allowSurrogateChars: (<any>this.options).allowSurrogateChars
+        ignoreDecorators: false,
+        stringify: {
+          convertTextKey: CONVERT_TEXT,
+          convertCDataKey: CONVERT_CDATA,
+          convertCommentKey: CONVERT_COMMENT,
+          convertRawKey: CONVERT_RAW,
+          convertPIKey: CONVERT_PI
+        }
       }
     );
-    return this._render(rootElement, rootObj).end(this.options.renderOpts);
+    try {
+      return this._render(rootElement, rootObj).end(this.options.renderOpts);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }

@@ -193,7 +193,6 @@ export class Parser extends events.EventEmitter {
         }
         obj[commentskey] = comments;
         comments = [];
-        console.log(node);
         return stack.push(obj);
       };
     })(this);
@@ -201,8 +200,6 @@ export class Parser extends events.EventEmitter {
       return function() {
         var cdata, emptyStr, key, node, nodeName, obj, objClone, old, s, xpath;
         obj = stack.pop();
-        // console.log("pop");
-        // console.log(obj);
         nodeName = obj["#name"];
         if (
           !_this.options.explicitChildren ||

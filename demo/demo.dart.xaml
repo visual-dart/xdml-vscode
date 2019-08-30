@@ -1,35 +1,35 @@
-<!DOCTYPE xdml>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!-- Page -->
 <x:Page xmlns:x="https://github.com/miao17game/xdml/wiki/xdml" xmlns:bind="https://github.com/miao17game/xdml/wiki/bind" xmlns:flutter="https://github.com/flutter/flutter/wiki" path="./demo.dart" class="MyApp">
-	<!-- ReferenceGroup -->
-	<x:Reference>
-		<x:Import path="package:flutter/material.dart"></x:Import>
-	</x:Reference>
-	<!-- PartialVuiew -->
-	<x:ViewUnit ref="appBarTpl">
-		<AppBar>
-			<Text x:slot="title">{{ 'Welcome to Flutter' + ' ' + _platformVersion }}</Text>
-		</AppBar>
-	</x:ViewUnit>
-	<x:ViewUnit ref="fuckYou">fuck you !</x:ViewUnit>
-	<!-- PartialVuiewFn -->
-	<x:ViewGenerator ref="itemFn" pass-context="BuildContext" pass-index="int" namedPass-source-xxx="String" var-ctx="context">
-		<x:Execution>print("woshinidie")</x:Execution>
-		<x:Execution>print(ctx)</x:Execution>
-		<Text x:if="index % 2 == 0">123456</Text>
-		<Text x:else="">654321</Text>
-	</x:ViewGenerator>
-	<!-- Host -->
-	<MaterialApp x:host="build" bind:title="titleText">
-		<Scaffold x:slot="home" bind:appBar="appBarTpl">
-			<ListView.builder x:slot="body" x:if="a == null" itemCount="{{ list.length }}" itemBuilder="{{ itemFn }}" />
-			<Column x:slot="body" x:else="" bind:mainAxisAlignment="MainAxisAlignment.center">
-				<x:NodeList x:slot="children" type="Widget">
-					<Text x:if="a is Map<dynamic, dynamic> && a.containsKey('b')">{{ a['b'] + '2#232#' }}</Text>
-					<Text x:else="">666</Text>
-					<Text>{{ fuckYou }}</Text>
-				</x:NodeList>
-			</Column>
-		</Scaffold>
-	</MaterialApp>
+  <!-- ReferenceGroup -->
+  <x:Reference>
+    <x:Import path="package:flutter/material.dart"/>
+  </x:Reference>
+  <!-- PartialVuiew -->
+  <x:ViewUnit ref="appBarTpl">
+    <AppBar>
+      <Text x:slot="title">{{ 'Welcome to Flutter' + ' ' + _platformVersion }}</Text>
+    </AppBar>
+  </x:ViewUnit>
+  <x:ViewUnit ref="fuckYou">fuck you !</x:ViewUnit>
+  <!-- PartialVuiewFn -->
+  <x:ViewGenerator ref="itemFn" pass-context="BuildContext" pass-index="int" namedPass-source-xxx="String" var-ctx="context">
+    <x:Execution>print("woshinidie")</x:Execution>
+    <x:Execution>print(ctx)</x:Execution>
+    <Text x:if="index % 2 == 0">123456</Text>
+    <Text x:else="">654321</Text>
+  </x:ViewGenerator>
+  <!-- Host -->
+  <MaterialApp x:host="build" bind:title="titleText">
+    <Scaffold x:slot="home" bind:appBar="appBarTpl">
+      <ListView.builder x:slot="body" x:if="a == null" itemCount="{{ list.length }}" itemBuilder="{{ itemFn }}"/>
+      <Column x:slot="body" x:else="" bind:mainAxisAlignment="MainAxisAlignment.center">
+        <x:NodeList x:slot="children" type="Widget">
+          <Text x:if="a is Map<dynamic, dynamic> && a.containsKey('b')">{{ a['b'] + '2#232#' }}</Text>
+          <Text x:else="">666</Text>
+          <Text>{{ fuckYou }}</Text>
+        </x:NodeList>
+      </Column>
+    </Scaffold>
+  </MaterialApp>
 </x:Page>

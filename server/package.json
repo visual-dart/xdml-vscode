@@ -14,7 +14,7 @@
   "dependencies": {
     "sax": ">=0.6.0",
     "vscode-languageserver": "^5.2.1",
-    "xmlbuilder": "~9.0.1"
+    "xmlbuilder": "^13.0.2"
   },
   "scripts": {},
   "devDependencies": {
