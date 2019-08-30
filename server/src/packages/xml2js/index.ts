@@ -1,6 +1,6 @@
 import { Builder } from "./builder";
 import { parseString, Parser } from "./parser";
-import { DEFAULTS } from "./defaults";
+import { DEFAULTS, Options } from "./defaults";
 import processors = require("./processors");
 
 export class ValidationError extends Error {
@@ -9,4 +9,11 @@ export class ValidationError extends Error {
   }
 }
 
-export { processors, parseString, Parser, Builder, DEFAULTS as defaults };
+export {
+  processors,
+  parseString,
+  Parser,
+  Builder,
+  Options,
+  DEFAULTS as defaults
+};

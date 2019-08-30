@@ -1,7 +1,7 @@
 const hasProp = {}.hasOwnProperty;
 
 import builder = require("xmlbuilder");
-import { DEFAULTS } from "./defaults";
+import { DEFAULTS, Options } from "./defaults";
 
 const requiresCDATA = function(entry) {
   return (
@@ -21,11 +21,11 @@ const escapeCDATA = function(entry) {
 };
 
 export class Builder {
-  private options!: any;
+  private options!: Options;
 
   constructor(opts: any) {
     var key, value;
-    this.options = {};
+    this.options = <any>{};
     const ref = DEFAULTS;
     for (key in ref) {
       if (!hasProp.call(ref, key)) {
@@ -151,7 +151,7 @@ export class Builder {
         this.options.doctype,
         <any>{
           headless: this.options.headless,
-          allowSurrogateChars: this.options.allowSurrogateChars
+          allowSurrogateChars: (<any>this.options).allowSurrogateChars
         }
       );
       return render(rootElement, rootObj).end(this.options.renderOpts);

@@ -3,7 +3,7 @@ import events = require("events");
 import processors = require("./processors");
 import timers = require("timers");
 
-import { DEFAULTS } from "./defaults";
+import { DEFAULTS, Options } from "./defaults";
 import { stripBOM } from "./bom";
 
 const bind = function(fn, me) {
@@ -13,21 +13,6 @@ const bind = function(fn, me) {
 };
 
 const hasProp = {}.hasOwnProperty;
-
-const extend = function(child, parent) {
-  for (var key in parent) {
-    if (hasProp.call(parent, key)) {
-      child[key] = parent[key];
-    }
-  }
-  function ctor(this: any) {
-    this.constructor = child;
-  }
-  ctor.prototype = parent.prototype;
-  child.prototype = new ctor();
-  child.__super__ = parent.prototype;
-  return child;
-};
 
 const isEmpty = function(thing: any) {
   return (
@@ -47,13 +32,13 @@ const processItem = function(processors: any[], item: any, key?: string) {
 };
 
 export class Parser extends events.EventEmitter {
-  private options!: any;
+  private options!: Options;
   private remaining!: string;
   private saxParser!: any;
   private resultObject!: any;
   private EXPLICIT_CHARKEY!: any;
 
-  constructor(opts: any) {
+  constructor(opts: Options) {
     super();
     this.parseString = bind(this.parseString, this);
     this.reset = bind(this.reset, this);
@@ -63,7 +48,7 @@ export class Parser extends events.EventEmitter {
     if (!(this instanceof Parser)) {
       return new Parser(opts);
     }
-    this.options = {};
+    this.options = <any>{};
     const ref = DEFAULTS;
     for (key in ref) {
       if (!hasProp.call(ref, key)) {

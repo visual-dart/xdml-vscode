@@ -12,8 +12,8 @@
     "url": "https://github.com/Microsoft/vscode-extension-samples"
   },
   "dependencies": {
-    "vscode-languageserver": "^5.2.1",
     "sax": ">=0.6.0",
+    "vscode-languageserver": "^5.2.1",
     "xmlbuilder": "~9.0.1"
   },
   "scripts": {},
