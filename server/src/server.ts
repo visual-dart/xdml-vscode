@@ -12,6 +12,7 @@ import {
   TextDocumentPositionParams
 } from "vscode-languageserver";
 import { Parser } from "xml2js";
+import { getCurrentEntityInfos, ElementType } from "./xdml/entity-parse";
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
@@ -112,75 +113,52 @@ documents.onDidClose(e => {
 });
 
 connection.onHover(async e => {
-  // console.log(e);
   var doc = documents.get(e.textDocument.uri)!;
   var position = e.position;
-  var text = doc.getText();
-  var currentIndex = doc.offsetAt(position);
-  // console.log(text.substring(currentIndex, 10));
-  const preContent = text.substring(0, currentIndex);
-  const afterContent = text.substr(currentIndex);
 
-  // console.log(currentIndex);
-
-  const XDML = "https://github.com/visual-dart/xdml/wiki/xdml";
-
-  const namespaces: any = {};
-  const nsReg = /xmlns:([\w-_.]+)\s*=\s*((\"([^\"\r\n]+)\")|(\'([^\'\r\n]+)\'))(\r|\r\n)*/g;
-  text.replace(nsReg, (...args) => {
-    // console.log(args);
-    const ns = args[1];
-    const nsUrl = args[4] || args[7];
-    namespaces[ns] = nsUrl;
-    return "";
-  });
-
-  const preReg = /(\s|\r\n|\n|<|<\/){1}([\w-_\.:]*)$/;
-  const preResult = preReg.exec(preContent);
-  if (!preResult) {
-    return { contents: [] };
+  const result = getCurrentEntityInfos(doc, position);
+  if (result === null) {
+    return {
+      contents: []
+    };
   }
-  // console.log(preResult);
-  var isClass = preResult[1] === "<" || preResult[1] === "</";
-  var preValue = preResult[2];
 
-  const nextReg = /^([\w-_\.:]*)(\s|\r\n|\n)*(=)?/;
-  const nextResult = nextReg.exec(afterContent);
-  if (!nextResult) {
-    return { contents: [] };
+  const { type, nsUri, name, metainfo } = result;
+
+  let tokenType = "Token";
+
+  switch (type) {
+    case ElementType.DartClass:
+      tokenType = "Dart类";
+      break;
+    case ElementType.DartFactory:
+      tokenType = "Dart类工厂";
+      break;
+    case ElementType.DartProperty:
+      tokenType = "Dart类属性";
+      break;
+    case ElementType.XDMLVirtualVariable:
+      tokenType = "XDML虚拟变量声明";
+      break;
+    case ElementType.XDMLNode:
+      tokenType = "XDML语法结构";
+      break;
+    case ElementType.XDMLAttr:
+      tokenType = "XDML结构属性";
+      break;
+    case ElementType.NamespaceAttrDefine:
+      tokenType = "XDML名称空间声明";
+      break;
+    default:
+      tokenType = "Token";
   }
-  // console.log(nextResult);
-  var nextValue = nextResult[1];
-  var isAttr = nextResult[3] === "=";
 
-  const entityName = `${preValue}${nextValue}`;
-  const hasNs = entityName.indexOf(":") > 0;
-  const ns = hasNs ? entityName.split(":")[0] : undefined;
-  const name = hasNs ? entityName.split(":")[1] : entityName;
-  const isFactory = name.indexOf(".") >= 0;
-
-  let message = entityName;
-
-  var nsUrl = namespaces[ns!];
-  var internal = nsUrl === XDML;
-  const tokenType = isClass
-    ? internal
-      ? isFactory
-        ? "XDML虚拟变量声明"
-        : "XDML语法结构"
-      : isFactory
-      ? "Dart类工厂"
-      : "Dart类"
-    : isAttr
-    ? "属性"
-    : "Token";
-  message = [
-    `**${tokenType}**: ${"`"}${name}${"`"}`,
-    `**导入来源**: ${nsUrl || "当前页面范围内部成员"}`
-  ].join("\n\n");
+  console.log(metainfo);
 
   return {
-    contents: message
+    contents: [`**${tokenType}** - ${"`"}${name}${"`"}`]
+      .concat(metainfo.pointList.map(i => ` - **${i.k}** - ${i.v}`))
+      .join("\n\n")
   };
 });
 
