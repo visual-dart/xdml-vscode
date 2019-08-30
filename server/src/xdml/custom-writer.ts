@@ -1,11 +1,5 @@
-import {
-  XMLWriter,
-  WriterOptions,
-  XMLElement,
-  nodeType,
-  writerState
-} from "xmlbuilder";
-import * as XMLStringWriter from "xmlbuilder/lib/XMLStringWriter";
+import { WriterOptions, XMLElement, nodeType, writerState } from "xmlbuilder";
+import XMLStringWriter = require("xmlbuilder/lib/XMLStringWriter");
 
 const hasProp = {}.hasOwnProperty;
 
@@ -16,7 +10,7 @@ export interface ICustomOptions extends WriterOptions {
   splitAttrMoreThan?: number;
 }
 
-export class CustomWriter extends XMLStringWriter implements XMLWriter {
+export class CustomWriter extends XMLStringWriter {
   constructor(private opts: ICustomOptions = { splitAttrMoreThan: 1024 }) {
     super();
   }
@@ -29,7 +23,7 @@ export class CustomWriter extends XMLStringWriter implements XMLWriter {
   ) {
     const opts: ICustomOptions = {
       ...options,
-      ...(<ICustomOptions>this.opts)
+      ...(<any>this).opts
     };
     level = level || 0;
     let prettySuppressed = false;
@@ -107,7 +101,7 @@ export class CustomWriter extends XMLStringWriter implements XMLWriter {
       opts.state = WriterState.InsideTag;
       (<any>opts).suppressPrettyCount++;
       prettySuppressed = true;
-      r += this.writeChildNode(firstChildNode, opts, level + 1);
+      r += this.writeChildNode(firstChildNode!, opts, level + 1);
       (<any>opts).suppressPrettyCount--;
       prettySuppressed = false;
       opts.state = WriterState.CloseTag;
