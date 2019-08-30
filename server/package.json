@@ -13,10 +13,11 @@
   },
   "dependencies": {
     "vscode-languageserver": "^5.2.1",
-    "xml2js": "^0.4.19"
+    "sax": ">=0.6.0",
+    "xmlbuilder": "~9.0.1"
   },
   "scripts": {},
   "devDependencies": {
-    "@types/xml2js": "^0.4.4"
+    "@types/xmlbuilder": "^0.0.35"
   }
 }

@@ -2,17 +2,10 @@
 # yarn lockfile v1
 
 
-"@types/node@*":
-  version "12.7.2"
-  resolved "https://registry.npmjs.org/@types/node/-/node-12.7.2.tgz#c4e63af5e8823ce9cc3f0b34f7b998c2171f0c44"
-  integrity sha512-dyYO+f6ihZEtNPDcWNR1fkoTDf3zAK3lAABDze3mz6POyIercH0lEUawUFXlG8xaQZmm1yEBON/4TsYv/laDYg==
-
-"@types/xml2js@^0.4.4":
-  version "0.4.4"
-  resolved "https://registry.npmjs.org/@types/xml2js/-/xml2js-0.4.4.tgz#2093d94359a201806d997dccefc80153db311c66"
-  integrity sha512-O6Xgai01b9PB3IGA0lRIp1Ex3JBcxGDhdO0n3NIIpCyDOAjxcIGQFmkvgJpP8anTrthxOUQjBfLdRRi0Zn/TXA==
-  dependencies:
-    "@types/node" "*"
+"@types/xmlbuilder@^0.0.35":
+  version "0.0.35"
+  resolved "https://registry.npmjs.org/@types/xmlbuilder/-/xmlbuilder-0.0.35.tgz#1e5b6289691647b48f23082ac743250557852a9c"
+  integrity sha512-wvt2XjZ4EHBScd/9Bx+OOnsOZxpiY25hWUocf2beEgAeE0AN1jXHKRoOvxg3g3Ob1eg2g/YbZ2UIwnLU+tXSSg==
 
 sax@>=0.6.0:
   version "1.2.4"
@@ -49,14 +42,6 @@ vscode-uri@^1.0.6:
   version "1.0.8"
   resolved "https://registry.npmjs.org/vscode-uri/-/vscode-uri-1.0.8.tgz#9769aaececae4026fb6e22359cb38946580ded59"
   integrity sha512-obtSWTlbJ+a+TFRYGaUumtVwb+InIUVI0Lu0VBUAPmj2cU5JutEXg3xUE0c2J5Tcy7h2DEKVJBFi+Y9ZSFzzPQ==
-
-xml2js@^0.4.19:
-  version "0.4.19"
-  resolved "https://registry.npmjs.org/xml2js/-/xml2js-0.4.19.tgz#686c20f213209e94abf0d1bcf1efaa291c7827a7"
-  integrity sha512-esZnJZJOiJR9wWKMyuvSE1y6Dq5LCuJanqhxslH2bxM6duahNZ+HMpCLhBQGZkbX6xRf8x1Y2eJlgt2q3qo49Q==
-  dependencies:
-    sax ">=0.6.0"
-    xmlbuilder "~9.0.1"
 
 xmlbuilder@~9.0.1:
   version "9.0.7"

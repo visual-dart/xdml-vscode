@@ -9,10 +9,18 @@ import {
   DidChangeConfigurationNotification,
   CompletionItem,
   CompletionItemKind,
-  TextDocumentPositionParams
+  TextDocumentPositionParams,
+  RequestType,
+  DocumentFormattingParams,
+  TextDocumentIdentifier,
+  TextEdit,
+  Range,
+  Position
 } from "vscode-languageserver";
-import { Parser } from "xml2js";
+// import { Parser } from "xml2js";
+// import * as xmlfmt from "xml-formatter";
 import { getCurrentEntityInfos, ElementType } from "./xdml/entity-parse";
+import { formatXml } from "./xdml/formatter";
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
@@ -41,6 +49,7 @@ connection.onInitialize((params: InitializeParams) => {
   return {
     capabilities: {
       hoverProvider: true,
+      documentFormattingProvider: true,
       textDocumentSync: documents.syncKind,
       // Tell the client that the server supports code completion
       completionProvider: {
@@ -78,7 +87,7 @@ let globalSettings: IXDMLSettings = defaultSettings;
 // Cache the settings of all open documents
 let documentSettings: Map<string, Thenable<IXDMLSettings>> = new Map();
 
-let xmlParser = new Parser({ strict: false });
+// let xmlParser = new Parser({ strict: false });
 
 connection.onDidChangeConfiguration(change => {
   if (hasConfigurationCapability) {
@@ -168,22 +177,35 @@ documents.onDidChangeContent(change => {
   validateTextDocument(change.document);
 });
 
+documents.onWillSave(async e => {
+  const token = new RequestType<DocumentFormattingParams, any, any, any>(
+    "textDocument/formatting"
+  );
+  connection.sendRequest(token, {
+    textDocument: TextDocumentIdentifier.create(e.document.uri),
+    options: {
+      tabSize: 2,
+      insertSpaces: true
+    }
+  });
+});
+
+connection.onDocumentFormatting(async e => {
+  const doc = documents.get(e.textDocument.uri)!;
+  const text = doc.getText();
+  const lastPosition = doc.positionAt(text.length);
+  const result = await formatXml(text);
+  return [
+    TextEdit.replace(Range.create(Position.create(0, 0), lastPosition), result)
+  ];
+});
+
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   // In this simple example we get the settings for every validate run.
   let settings = await getDocumentSettings(textDocument.uri);
 
   // The validator creates diagnostics for all uppercase words length 2 and more
   let text = textDocument.getText();
-  // return new Promise((resolve, reject) => {
-  // xmlParser.parseString(text, (error: any, result: any) => {
-  //   if (error) {
-  //     reject(error);
-  //   } else {
-  //     console.log(result);
-  //   }
-  // });
-  // });
-  // console.log(text);
   // let pattern = /\b[A-Z]{2,}\b/g;
   // let m: RegExpExecArray | null;
 

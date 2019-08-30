@@ -12,7 +12,9 @@
     "vscode": "^1.37.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Linters",
+    "Formatters"
   ],
   "activationEvents": [
     "onLanguage:xdml"

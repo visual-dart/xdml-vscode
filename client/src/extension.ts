@@ -1,16 +1,25 @@
 import * as path from "path";
-import { workspace, ExtensionContext } from "vscode";
-
+import {
+  workspace,
+  ExtensionContext
+  // languages,
+  // TextDocument,
+  // Position
+} from "vscode";
 import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
   TransportKind
+  // RequestType,
+  // TextDocumentPositionParams
 } from "vscode-languageclient";
+// import { getIndentationRules } from "./xdml/indent-rules";
+// import { activateTagClosing, AutoCloseResult } from "./xdml/auto-close";
 
 let client: LanguageClient;
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   // The server is implemented in node
   let serverModule = context.asAbsolutePath(
     path.join("server", "out", "server.js")
@@ -36,7 +45,8 @@ export function activate(context: ExtensionContext) {
     documentSelector: [{ scheme: "file", language: "xdml" }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/.clientrc")
+      fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+      configurationSection: ["xdml", "[xdml]"]
     }
   };
 
@@ -48,8 +58,33 @@ export function activate(context: ExtensionContext) {
     clientOptions
   );
 
+  // languages.setLanguageConfiguration("xdml", getIndentationRules());
+
   // Start the client. This will also launch the server
   client.start();
+  // await client.onReady();
+
+  // const typeX: RequestType<
+  //   TextDocumentPositionParams,
+  //   AutoCloseResult,
+  //   any,
+  //   any
+  // > = new RequestType("xdml/closeTag");
+  // const tagProvider = (document: TextDocument, position: Position) => {
+  //   const param = client.code2ProtocolConverter.asTextDocumentPositionParams(
+  //     document,
+  //     position
+  //   );
+  //   const text = client.sendRequest(typeX, param);
+  //   return text;
+  // };
+  // context.subscriptions.push(
+  //   activateTagClosing(
+  //     tagProvider,
+  //     { xdml: true },
+  //     "xdml.completion.autoCloseTags"
+  //   )
+  // );
 }
 
 export function deactivate(): Thenable<void> | undefined {
