@@ -42,9 +42,10 @@ export const Builder = (function() {
   }
 
   Builder.prototype.buildObject = function(rootObj) {
-    var attrkey, charkey, render, rootElement, rootName;
+    var attrkey, charkey, commentskey, render, rootElement, rootName;
     attrkey = this.options.attrkey;
     charkey = this.options.charkey;
+    commentskey = this.options.commentskey;
     if (
       Object.keys(rootObj).length === 1 &&
       this.options.rootName === DEFAULTS["0.2"].rootName
@@ -56,7 +57,7 @@ export const Builder = (function() {
     }
     render = (function(_this) {
       return function(element, obj) {
-        var attr, child, entry, index, key, value;
+        var attr, child, entry, i, len, index, key, value;
         if (typeof obj !== "object") {
           if (_this.options.cdata && requiresCDATA(obj)) {
             element.raw(wrapCDATA(obj));
@@ -92,6 +93,11 @@ export const Builder = (function() {
                 element = element.raw(wrapCDATA(child));
               } else {
                 element = element.txt(child);
+              }
+            } else if (key === commentskey) {
+              for (i = 0, len = child.length; i < len; i++) {
+                value = child[i];
+                element = element.comment(value);
               }
             } else if (Array.isArray(child)) {
               for (index in child) {

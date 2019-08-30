@@ -133,7 +133,7 @@ export class Parser extends events.EventEmitter {
   }
 
   reset() {
-    var attrkey, charkey, ontext, stack;
+    var attrkey, charkey, commentskey, ontext, stack;
     this.removeAllListeners();
     this.saxParser = sax.parser(this.options.strict, {
       trim: false,
@@ -164,6 +164,7 @@ export class Parser extends events.EventEmitter {
     stack = [];
     attrkey = this.options.attrkey;
     charkey = this.options.charkey;
+    commentskey = this.options.commentskey;
     this.saxParser.onopentag = (function(_this) {
       return function(node) {
         var key, newValue, obj, processedKey, ref;
@@ -362,7 +363,7 @@ export class Parser extends events.EventEmitter {
       };
     })(this);
     this.saxParser.ontext = ontext;
-    return (this.saxParser.oncdata = (function(_this) {
+    this.saxParser.oncdata = (function(_this) {
       return function(text) {
         var s;
         s = ontext(text);
@@ -370,7 +371,20 @@ export class Parser extends events.EventEmitter {
           return (s.cdata = true);
         }
       };
-    })(this));
+    })(this);
+    if (this.options.parseComments) {
+      return (this.saxParser.oncomment = (function(_this) {
+        return function(text) {
+          var s;
+          s = stack[stack.length - 1];
+          if (s) {
+            s[commentskey] = s[commentskey] || [];
+            s[commentskey].push(text.trim());
+            return s;
+          }
+        };
+      })(this));
+    }
   }
 
   parseString(str, cb) {
