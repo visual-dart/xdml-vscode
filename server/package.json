@@ -17,7 +17,5 @@
     "xmlbuilder": "^13.0.2"
   },
   "scripts": {},
-  "devDependencies": {
-    "@types/xmlbuilder": "^0.0.35"
-  }
+  "devDependencies": {}
 }

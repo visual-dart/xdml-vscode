@@ -181,6 +181,7 @@ export class Builder {
       {
         headless: this.options.headless,
         ignoreDecorators: false,
+        writer: this.options.renderOpts && this.options.renderOpts.writer,
         stringify: {
           convertTextKey: CONVERT_TEXT,
           convertCDataKey: CONVERT_CDATA,

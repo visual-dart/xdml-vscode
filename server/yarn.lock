@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@types/xmlbuilder@^0.0.35":
-  version "0.0.35"
-  resolved "https://registry.npmjs.org/@types/xmlbuilder/-/xmlbuilder-0.0.35.tgz#1e5b6289691647b48f23082ac743250557852a9c"
-  integrity sha512-wvt2XjZ4EHBScd/9Bx+OOnsOZxpiY25hWUocf2beEgAeE0AN1jXHKRoOvxg3g3Ob1eg2g/YbZ2UIwnLU+tXSSg==
-
 sax@>=0.6.0:
   version "1.2.4"
   resolved "https://registry.npmjs.org/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"

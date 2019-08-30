@@ -1,13 +1,26 @@
-// @ts-ignore
-import xmlfmt = require("../packages/xml2js");
+import { WriterOptions } from "xmlbuilder";
+import { Parser, Builder } from "../packages/xml2js";
+import { CustomWriter } from "./custom-writer";
 
 const ESCAPE_DOUBLE = /"([^"]*([&]+)[^"]*)"/g;
 const ESCAPE_SINGLE = /'([^']*([&]+)[^']*)'/g;
 
-const DESCAPE = /"@\[([^&]*)\]"/g;
+const DESCAPE = /"@\[([^\r\n&]*)\]"/g;
 
-const PARSER = new xmlfmt.Parser({ strict: true });
-const BUILDER = new xmlfmt.Builder({});
+const DEFAULT_OPTIONS: WriterOptions = {
+  pretty: true,
+  indent: "  ",
+  newline: "\n",
+  width: 120
+};
+
+const PARSER = new Parser({ strict: true });
+const BUILDER = new Builder({
+  renderOpts: {
+    ...DEFAULT_OPTIONS,
+    writer: new CustomWriter({ splitAttrMoreThan: 3 })
+  }
+});
 
 async function parseString(parser: any, text: string) {
   return new Promise((resolve, reject) => {
@@ -32,8 +45,6 @@ export async function formatXml(text: string) {
         return `"@[${escape(matched)}]"`;
       });
     const ast = await parseString(PARSER, formalText);
-    console.log("parsed.");
-    console.log(ast);
     const result = BUILDER.buildObject(ast).replace(
       DESCAPE,
       (_, matched) => `"${unescape(matched)}"`
