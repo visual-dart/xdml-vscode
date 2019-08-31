@@ -12,10 +12,12 @@
     "url": "https://github.com/Microsoft/vscode-extension-samples"
   },
   "dependencies": {
-    "sax": ">=0.6.0",
+    "sax": "^1.2.4",
     "vscode-languageserver": "^5.2.1",
     "xmlbuilder": "^13.0.2"
   },
   "scripts": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/sax": "^1.2.0"
+  }
 }
