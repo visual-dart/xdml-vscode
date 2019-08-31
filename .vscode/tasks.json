@@ -6,7 +6,7 @@
     {
       "label": "Run Pre-Compile",
       "type": "npm",
-      "script": "compile:language-support"
+      "script": "compile:language"
     },
     {
       "type": "npm",
