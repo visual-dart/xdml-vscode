@@ -9,6 +9,7 @@
     "url": "https://github.com/visual-dart/xdml-vscode.git"
   },
   "main": "./client/out/extension.js",
+  "license": "MIT",
   "scripts": {
     "vscode:prepublish": "cd client && yarn update-vscode && cd .. && yarn compile",
     "install:client": "cd client && yarn",

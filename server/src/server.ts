@@ -75,13 +75,23 @@ connection.onInitialized(() => {
 
 // The example settings
 interface IXDMLSettings {
-  validation: boolean;
+  formatter: {
+    indent: "whitespace" | "tab";
+    indentSize: 1 | 2 | 4;
+    lineWidth: number;
+  };
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: IXDMLSettings = { validation: true };
+const defaultSettings: IXDMLSettings = {
+  formatter: {
+    indent: "whitespace",
+    indentSize: 2,
+    lineWidth: 120
+  }
+};
 let globalSettings: IXDMLSettings = defaultSettings;
 
 // Cache the settings of all open documents
@@ -162,8 +172,6 @@ connection.onHover(async e => {
       tokenType = "Token";
   }
 
-  console.log(metainfo);
-
   return {
     contents: [`**${tokenType}** - ${"`"}${name}${"`"}`]
       .concat(metainfo.pointList.map(i => ` - **${i.k}** - ${i.v}`))
@@ -192,9 +200,10 @@ documents.onWillSave(async e => {
 
 connection.onDocumentFormatting(async e => {
   const doc = documents.get(e.textDocument.uri)!;
+  const settings = await getDocumentSettings(e.textDocument.uri);
   const text = doc.getText();
   const lastPosition = doc.positionAt(text.length);
-  const result = await formatXml(text);
+  const result = await formatXml(text, settings.formatter);
   return [
     TextEdit.replace(Range.create(Position.create(0, 0), lastPosition), result)
   ];
