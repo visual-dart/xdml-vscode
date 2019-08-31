@@ -1,6 +1,6 @@
 {
-  "name": "xdml-vscode",
-  "displayName": "XAML for Dart Language Support",
+  "name": "puzzle-xdml",
+  "displayName": "Puzzle Dart",
   "description": "XAML for Dart Language Support",
   "version": "0.0.1",
   "publisher": "bigmogician",
@@ -71,7 +71,7 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "Xaml For Dart Language Support Configuration",
+      "title": "Puzzle Configuration",
       "properties": {
         "xdml.formatter.lineWidth": {
           "scope": "window",
