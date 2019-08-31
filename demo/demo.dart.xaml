@@ -53,7 +53,7 @@
       >
         <x:NodeList x:slot="children" x:type="Widget">
           <x:Virtual._rule x:value="a is Map<dynamic, dynamic> && a.containsKey('b')"/>
-          <Text x:if="a is Map<dynamic, dynamic> && a.containsKey('b')">{{ a['b'] + '2#232#' }}</Text>
+          <Text x:if="bind:v = _rule">{{ a['b'] + '2#232#' }}</Text>
           <Text x:else="">666</Text>
           <Text>{{ fuckYou }}</Text>
         </x:NodeList>
