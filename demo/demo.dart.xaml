@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!-- Page -->
 <x:Page
-  xmlns:x="https://github.com/miao17game/xdml/wiki/xdml"
-  xmlns:bind="https://github.com/miao17game/xdml/wiki/bind"
+  xmlns:x="https://github.com/visual-dart/xdml/wiki/xdml"
+  xmlns:bind="https://github.com/visual-dart/xdml/wiki/bind"
   xmlns:flutter="https://github.com/flutter/flutter/wiki"
   path="demo.dart"
   class="MyApp"
