@@ -17,8 +17,6 @@ import {
   Range,
   Position
 } from "vscode-languageserver";
-// import { Parser } from "xml2js";
-// import * as xmlfmt from "xml-formatter";
 import { getCurrentEntityInfos, ElementType } from "./xdml/entity-parse";
 import { formatXml } from "./xdml/formatter";
 
