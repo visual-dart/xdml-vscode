@@ -40,7 +40,7 @@
 
   <!-- Host -->
   <MaterialApp x:host="build" bind:title="titleText">
-    <Scaffold x:slot="home" bind:appBar="appBarTpl">
+    <Scaffold x:slot="home" appBar="{{ appBarTpl }}">
       <ListView.builder
         x:slot="body"
         x:if="a == null"
