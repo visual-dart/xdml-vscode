@@ -17,7 +17,7 @@ import {
   Range,
   Position
 } from "vscode-languageserver";
-import { getCurrentEntityInfos, ElementType } from "./xdml/entity-parse";
+import { getCurrentEntityInfos } from "./xdml/entity-parse";
 import { formatXml } from "./xdml/formatter";
 
 let connection = createConnection(ProposedFeatures.all);
@@ -140,39 +140,10 @@ connection.onHover(async e => {
     };
   }
 
-  const { type, nsUri, name, metainfo } = result;
-
-  let tokenType = "Token";
-
-  switch (type) {
-    case ElementType.DartClass:
-      tokenType = "Dart类";
-      break;
-    case ElementType.DartFactory:
-      tokenType = "Dart类工厂";
-      break;
-    case ElementType.DartProperty:
-      tokenType = "Dart类属性";
-      break;
-    case ElementType.XDMLVirtualVariable:
-      tokenType = "XDML虚拟变量声明";
-      break;
-    case ElementType.XDMLNode:
-      tokenType = "XDML语法结构";
-      break;
-    case ElementType.XDMLAttr:
-      tokenType = "XDML结构属性";
-      break;
-    case ElementType.NamespaceAttrDefine:
-      tokenType = "XDML名称空间声明";
-      break;
-    default:
-      tokenType = "Token";
-  }
-
+  const { metainfo } = result;
   return {
-    contents: [`**${tokenType}** - ${"`"}${name}${"`"}`]
-      .concat(metainfo.pointList.map(i => ` - **${i.k}** - ${i.v}`))
+    contents: metainfo.pointList
+      .map(i => `${i.p || ""}**${i.k}** - ${i.v}`)
       .join("\n\n")
   };
 });
