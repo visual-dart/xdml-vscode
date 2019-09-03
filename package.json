@@ -2,7 +2,7 @@
   "name": "puzzle-vscode",
   "displayName": "Puzzle Dart",
   "description": "XAML for Dart Language Support",
-  "version": "1.0.1",
+  "version": "0.0.1",
   "publisher": "bigmogician",
   "repository": {
     "type": "git",
