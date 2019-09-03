@@ -1,8 +1,8 @@
 {
-  "name": "puzzle-xdml",
+  "name": "puzzle-vscode",
   "displayName": "Puzzle Dart",
   "description": "XAML for Dart Language Support",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "publisher": "bigmogician",
   "repository": {
     "type": "git",
@@ -21,7 +21,8 @@
     "compile:source": "tsc -b",
     "watch:source": "tsc -b -w",
     "compile": "yarn compile:language && yarn compile:source",
-    "watch": "yarn compile:language && yarn watch:source"
+    "watch": "yarn compile:language && yarn watch:source",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.0",
