@@ -22,7 +22,7 @@
     "watch:source": "tsc -b -w",
     "compile": "yarn compile:language && yarn compile:source",
     "watch": "yarn compile:language && yarn watch:source",
-    "publish": "vsce publish"
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.0",
