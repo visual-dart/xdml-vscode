@@ -17,9 +17,7 @@ import {
   Range,
   Position
 } from "vscode-languageserver";
-// import { Parser } from "xml2js";
-// import * as xmlfmt from "xml-formatter";
-import { getCurrentEntityInfos, ElementType } from "./xdml/entity-parse";
+import { getCurrentEntityInfos } from "./xdml/entity-parse";
 import { formatXml } from "./xdml/formatter";
 
 let connection = createConnection(ProposedFeatures.all);
@@ -75,13 +73,23 @@ connection.onInitialized(() => {
 
 // The example settings
 interface IXDMLSettings {
-  validation: boolean;
+  formatter: {
+    indent: "whitespace" | "tab";
+    indentSize: 1 | 2 | 4;
+    lineWidth: number;
+  };
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: IXDMLSettings = { validation: true };
+const defaultSettings: IXDMLSettings = {
+  formatter: {
+    indent: "whitespace",
+    indentSize: 2,
+    lineWidth: 120
+  }
+};
 let globalSettings: IXDMLSettings = defaultSettings;
 
 // Cache the settings of all open documents
@@ -132,41 +140,10 @@ connection.onHover(async e => {
     };
   }
 
-  const { type, nsUri, name, metainfo } = result;
-
-  let tokenType = "Token";
-
-  switch (type) {
-    case ElementType.DartClass:
-      tokenType = "Dart类";
-      break;
-    case ElementType.DartFactory:
-      tokenType = "Dart类工厂";
-      break;
-    case ElementType.DartProperty:
-      tokenType = "Dart类属性";
-      break;
-    case ElementType.XDMLVirtualVariable:
-      tokenType = "XDML虚拟变量声明";
-      break;
-    case ElementType.XDMLNode:
-      tokenType = "XDML语法结构";
-      break;
-    case ElementType.XDMLAttr:
-      tokenType = "XDML结构属性";
-      break;
-    case ElementType.NamespaceAttrDefine:
-      tokenType = "XDML名称空间声明";
-      break;
-    default:
-      tokenType = "Token";
-  }
-
-  console.log(metainfo);
-
+  const { metainfo } = result;
   return {
-    contents: [`**${tokenType}** - ${"`"}${name}${"`"}`]
-      .concat(metainfo.pointList.map(i => ` - **${i.k}** - ${i.v}`))
+    contents: metainfo.pointList
+      .map(i => `${i.p || ""}**${i.k}** - ${i.v}`)
       .join("\n\n")
   };
 });
@@ -192,9 +169,10 @@ documents.onWillSave(async e => {
 
 connection.onDocumentFormatting(async e => {
   const doc = documents.get(e.textDocument.uri)!;
+  const settings = await getDocumentSettings(e.textDocument.uri);
   const text = doc.getText();
   const lastPosition = doc.positionAt(text.length);
-  const result = await formatXml(text);
+  const result = await formatXml(text, settings.formatter);
   return [
     TextEdit.replace(Range.create(Position.create(0, 0), lastPosition), result)
   ];

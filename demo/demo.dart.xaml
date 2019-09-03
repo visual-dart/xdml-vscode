@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Page -->
+<x:Page
+  xmlns:x="https://github.com/visual-dart/xdml/wiki/xdml"
+  xmlns:bind="https://github.com/visual-dart/xdml/wiki/bind"
+  xmlns:flutter="https://github.com/flutter/flutter/wiki"
+  path="demo.dart"
+  class="MyApp"
+>
+  <!-- ReferenceGroup -->
+  <x:Reference>
+    <x:Import path="package:flutter/material.dart"/>
+  </x:Reference>
+
+  <!-- PartialVuiew -->
+  <x:ViewUnit x:ref="appBarTpl">
+    <AppBar>
+      <Text x:slot="title">{{
+        'Welcome to Flutter' 
+        + ' ' 
+        + _platformVersion
+      }}</Text>
+    </AppBar>
+  </x:ViewUnit>
+
+  <x:ViewUnit x:ref="fuckYou">fuck you !</x:ViewUnit>
+
+  <!-- PartialVuiewFn -->
+  <x:ViewGenerator
+    x:ref="itemFn"
+    x:pass-context="BuildContext"
+    x:pass-index="int"
+    x:var-ctx="context"
+  >
+    <x:Execution>print("woshinidie")</x:Execution>
+    <x:Execution>print(ctx)</x:Execution>
+    <Text x:if="index % 2 == 0">123456</Text>
+    <Text x:else="">654321</Text>
+  </x:ViewGenerator>
+
+  <!-- Host -->
+  <MaterialApp x:host="build" bind:title="titleText">
+    <Scaffold x:slot="home" appBar="{{ appBarTpl }}">
+      <ListView.builder
+        x:slot="body"
+        x:if="a == null"
+        itemCount="{{ list.length }}"
+        itemBuilder="{{ itemFn }}"/>
+      <Column
+        x:slot="body"
+        x:else=""
+        bind:mainAxisAlignment="MainAxisAlignment.center"
+      >
+        <x:NodeList x:slot="children" x:type="Widget">
+          <x:Virtual._rule x:value="a is Map<dynamic, dynamic> && a.containsKey('b')"/>
+          <Text x:if="bind:v = _rule">{{ a['b'] + '2#232#' }}</Text>
+          <Text x:else="">666</Text>
+          <Text>{{ fuckYou }}</Text>
+        </x:NodeList>
+      </Column>
+    </Scaffold>
+  </MaterialApp>
+
+</x:Page>

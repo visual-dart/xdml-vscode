@@ -23,6 +23,7 @@
       ")"
     ]
   ],
+  "autoCloseBefore": ";:.,=}])><` \n\t\"'",
   "autoClosingPairs": [
     {
       "open": "{",

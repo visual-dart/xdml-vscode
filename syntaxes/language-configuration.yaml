@@ -5,6 +5,7 @@ brackets:
   - ["<", ">"]
   - ["{", "}"]
   - ["(", ")"]
+autoCloseBefore: ";:.,=}])><` \n\t\"'"
 autoClosingPairs:
   - { open: "{", close: "}" }
   - { open: "(", close: ")" }

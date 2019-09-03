@@ -1,3 +1,5 @@
+import { WriterOptions } from "xmlbuilder";
+
 export interface Options {
   async: boolean;
   attrkey: string;
@@ -30,11 +32,7 @@ export interface Options {
     standalone: boolean;
   };
   doctype: any;
-  renderOpts: {
-    pretty: boolean;
-    indent: string;
-    newline: string;
-  };
+  renderOpts: Partial<WriterOptions>;
   headless: boolean;
   chunkSize: number;
   cdata: boolean;
@@ -75,11 +73,7 @@ export const DEFAULTS: Options = {
     standalone: true
   },
   doctype: null,
-  renderOpts: {
-    pretty: true,
-    indent: "  ",
-    newline: "\n"
-  },
+  renderOpts: {},
   headless: false,
   chunkSize: 10000,
   emptyTag: "",
